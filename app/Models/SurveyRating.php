@@ -27,56 +27,19 @@ class SurveyRating extends Model
         'updated_at' => 'datetime',
     ];
 
-    private static bool $allowEventWrites = false;
-
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Poll::class, 'survey_id');
     }
 
-    /**
-     * Recalculate aggregate rating for a survey. Called exclusively from Review model events.
-     */
-    public static function syncFromReviewEvents(int $surveyId): void
-    {
-        $stats = Review::query()
-            ->approved()
-            ->where('survey_id', $surveyId)
-            ->selectRaw('COALESCE(AVG(rating), 0) as avg_rating, COUNT(*) as total_reviews')
-            ->first();
-
-        self::$allowEventWrites = true;
-
-        try {
-            self::query()->updateOrCreate(
-                ['survey_id' => $surveyId],
-                [
-                    'avg_rating' => round((float) $stats->avg_rating, 2),
-                    'total_reviews' => (int) $stats->total_reviews,
-                    'updated_at' => now(),
-                ]
-            );
-        } finally {
-            self::$allowEventWrites = false;
-        }
-    }
-
     public function save(array $options = []): bool
     {
-        if (! self::$allowEventWrites) {
-            throw new RuntimeException('SurveyRating can only be updated via Review model events.');
-        }
-
-        return parent::save($options);
+        throw new RuntimeException('SurveyRating can only be updated via ReviewSubmitted event listeners.');
     }
 
     public function update(array $attributes = [], array $options = []): bool
     {
-        if (! self::$allowEventWrites) {
-            throw new RuntimeException('SurveyRating can only be updated via Review model events.');
-        }
-
-        return parent::update($attributes, $options);
+        throw new RuntimeException('SurveyRating can only be updated via ReviewSubmitted event listeners.');
     }
 
     public function delete(): bool|null

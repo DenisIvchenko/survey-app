@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Events\ReviewVoteCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,13 @@ class ReviewVote extends Model
         'user_id' => 'integer',
         'review_id' => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        static::created(static function (ReviewVote $vote): void {
+            ReviewVoteCast::dispatchSync($vote);
+        });
+    }
 
     public function user(): BelongsTo
     {

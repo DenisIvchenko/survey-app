@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Events\ReviewSubmitted;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,13 +42,9 @@ class Review extends Model
 
     protected static function booted(): void
     {
-        $syncSurveyRating = static function (Review $review): void {
-            SurveyRating::syncFromReviewEvents($review->survey_id);
-        };
-
-        static::saved($syncSurveyRating);
-        static::deleted($syncSurveyRating);
-        static::restored($syncSurveyRating);
+        static::created(static function (Review $review): void {
+            ReviewSubmitted::dispatchSync($review);
+        });
     }
 
     public function user(): BelongsTo
