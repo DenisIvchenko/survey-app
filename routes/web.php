@@ -3,8 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PollController;
-use App\Models\Poll;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 // Главная → вход
@@ -17,52 +15,35 @@ Route::get('/dashboard', function () {
     return redirect()->route('polls.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Профиль
-Route::middleware('auth')->group(function () {
+// 🔹 Все маршруты, требующие авторизации — ОДНА ГРУППА
+Route::middleware(['auth'])->group(function () {
+    
+    // Профиль пользователя
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-// Опросы (полный CRUD + конструктор)
-Route::middleware(['auth'])->group(function () {
-    Route::resource('polls', PollController::class);
     
-    // 🔥 Страница конструктора опроса
+    // 🔹 1. СПЕЦИФИЧНЫЕ МАРШРУТЫ (должны быть ПЕРВЫМИ!)
+    // Публичные опросы — ДО resource, чтобы не перехватывался как {poll}
+    Route::get('/polls/public', [PollController::class, 'public'])->name('polls.public');
+
+    // 🔹 Изменение статуса опроса (AJAX)
+    Route::patch('/polls/{poll}/status', [PollController::class, 'updateStatus'])->name('polls.status');
+    
+    // Конструктор опроса
     Route::get('/polls/{poll}/build', [PollController::class, 'build'])->name('polls.build');
+    Route::post('/polls/{poll}/questions', [PollController::class, 'updateQuestions'])->name('polls.questions.store');
     
-    // 🔥 API для сохранения вопросов (внутри web.php для простоты)
-    Route::post('/polls/{poll}/questions', function (Request $request, Poll $poll) {
-        // Проверка прав
-        if ($poll->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        // Валидация
-        $request->validate([
-            'questions' => 'required|array',
-            'questions.*.type' => 'required|in:text,textarea,radio,checkbox,dropdown,rating,scale',
-            'questions.*.text' => 'required|string|max:500',
-            'questions.*.options' => 'nullable|array',
-            'questions.*.is_required' => 'boolean',
-        ]);
-
-        // Удаляем старые вопросы (для простоты — полная замена)
-        $poll->questions()->delete();
-
-        // Сохраняем новые
-        foreach ($request->questions as $index => $q) {
-            $poll->questions()->create([
-                'text' => $q['text'],
-                'type' => $q['type'],
-                'options' => $q['options'] ?? null,
-                'is_required' => $q['is_required'] ?? false,
-                'sort_order' => $index,
-            ]);
-        }
-
-        return response()->json(['success' => true]);
-    })->name('polls.questions.store');
+    // Прохождение опроса
+    Route::get('/polls/{poll}/take', [PollController::class, 'take'])->name('polls.take');
+    Route::post('/polls/{poll}/submit', [PollController::class, 'submit'])->name('polls.submit');
+    Route::get('/polls/{poll}/thanks', [PollController::class, 'thanks'])->name('polls.thanks');
+    
+    // Отчет
+    Route::get('/polls/{poll}/report', [PollController::class, 'report'])->name('polls.report');
+    
+    // 🔹 2. РЕСУРСНЫЕ МАРШРУТЫ (идут ПОСЛЕ специфичных)
+    Route::resource('polls', PollController::class);
 });
 
 // Аутентификация Breeze

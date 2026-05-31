@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Система опросов') }}</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo e(config('app.name', 'Система опросов')); ?></title>
     
     <script>
         if (localStorage.getItem('theme') === 'light') {
@@ -12,7 +12,7 @@
         }
     </script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 </head>
 <body class="bg-gray-50 dark:bg-[#0b0b0f] text-gray-900 dark:text-gray-100 font-sans antialiased">
 
@@ -30,15 +30,15 @@
             </div>
 
             <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                {{-- 🔹 Ссылка: Мои опросы --}}
-                <a href="{{ route('polls.index') }}" class="group flex items-center px-4 py-3.5 text-base font-medium rounded-xl {{ request()->routeIs('polls.index') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white' }}">
-                    <svg class="w-6 h-6 mr-4 {{ request()->routeIs('polls.index') ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                
+                <a href="<?php echo e(route('polls.index')); ?>" class="group flex items-center px-4 py-3.5 text-base font-medium rounded-xl <?php echo e(request()->routeIs('polls.index') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'); ?>">
+                    <svg class="w-6 h-6 mr-4 <?php echo e(request()->routeIs('polls.index') ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'); ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                     Мои опросы
                 </a>
 
-                {{--  Ссылка: Все опросы (Бывшие "Мои шаблоны") --}}
-                <a href="{{ route('polls.public') }}" class="group flex items-center px-4 py-3.5 text-base font-medium rounded-xl {{ request()->routeIs('polls.public') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white' }}">
-                    <svg class="w-6 h-6 mr-4 {{ request()->routeIs('polls.public') ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                
+                <a href="<?php echo e(route('polls.public')); ?>" class="group flex items-center px-4 py-3.5 text-base font-medium rounded-xl <?php echo e(request()->routeIs('polls.public') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'); ?>">
+                    <svg class="w-6 h-6 mr-4 <?php echo e(request()->routeIs('polls.public') ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'); ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Все опросы
                 </a>
 
@@ -51,30 +51,30 @@
             <div class="p-5 border-t border-gray-200 dark:border-white/5 relative">
                 <button @click="profileMenuOpen = !profileMenuOpen" class="flex items-center gap-4 px-2 w-full hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl p-2 -m-2 transition-colors text-left">
                     <div class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0 overflow-hidden border-2 border-gray-200 dark:border-white/10">
-                        @if(Auth::user()->profile_photo_path)
-                            <img src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" class="w-full h-full object-cover">
-                        @else
-                            @php
+                        <?php if(Auth::user()->profile_photo_path): ?>
+                            <img src="<?php echo e(asset('storage/' . Auth::user()->profile_photo_path)); ?>" class="w-full h-full object-cover">
+                        <?php else: ?>
+                            <?php
                                 $colors = ['from-purple-500 to-pink-500', 'from-blue-500 to-cyan-500', 'from-green-500 to-emerald-500', 'from-orange-500 to-red-500', 'from-indigo-500 to-purple-500'];
                                 $gradient = $colors[abs(crc32(Auth::user()->name)) % count($colors)];
-                            @endphp
-                            <span class="text-white bg-gradient-to-br {{ $gradient }} w-full h-full flex items-center justify-center">{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</span>
-                        @endif
+                            ?>
+                            <span class="text-white bg-gradient-to-br <?php echo e($gradient); ?> w-full h-full flex items-center justify-center"><?php echo e(strtoupper(substr(Auth::user()->name, 0, 2))); ?></span>
+                        <?php endif; ?>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-base font-semibold text-gray-900 dark:text-white truncate">{{ Auth::user()->name }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email }}</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-white truncate"><?php echo e(Auth::user()->name); ?></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 truncate"><?php echo e(Auth::user()->email); ?></p>
                     </div>
                     <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0" :class="{ 'rotate-180': profileMenuOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                 </button>
 
                 <div x-show="profileMenuOpen" x-cloak @click.away="profileMenuOpen = false" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute bottom-full left-5 right-5 mb-3 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
-                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-5 py-3.5 text-base text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10">
+                    <a href="<?php echo e(route('profile.edit')); ?>" class="flex items-center gap-3 px-5 py-3.5 text-base text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10">
                         <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         Настройки профиля
                     </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
+                    <form method="POST" action="<?php echo e(route('logout')); ?>">
+                        <?php echo csrf_field(); ?>
                         <button type="submit" class="flex items-center gap-3 px-5 py-3.5 w-full text-left text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                             Выйти из аккаунта
@@ -101,9 +101,10 @@
             </header>
 
             <main class="flex-1 overflow-y-auto p-10">
-                {{ $slot }}
+                <?php echo e($slot); ?>
+
             </main>
         </div>
     </div>
 </body>
-</html>
+</html><?php /**PATH E:\OSPanel\survey-app\resources\views/layouts/app.blade.php ENDPATH**/ ?>

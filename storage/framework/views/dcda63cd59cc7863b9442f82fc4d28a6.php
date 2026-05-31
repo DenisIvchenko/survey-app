@@ -3,21 +3,21 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Конструктор — {{ $poll->title ?? 'Опрос' }}</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title>Конструктор — <?php echo e($poll->title ?? 'Опрос'); ?></title>
     <script>
         if (localStorage.getItem('theme') === 'light') {
             document.documentElement.classList.remove('dark');
         }
     </script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <style>
         [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-[#0b0b0f] text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-200">
 
-    @php
+    <?php
         $defaultTestSettings = [
             'points_per_question' => 10,
             'time_limit' => null,
@@ -33,15 +33,15 @@
             'show_correct_answers' => false,
             'one_attempt' => false
         ];
-    @endphp
+    ?>
 
     <script>
         window.__pollInit__ = {
-            id: {{ $poll->id ?? 'null' }},
-            questions: @json($poll->questions ? $poll->questions->toArray() : []),
-            redirectUrl: '{{ route('polls.index') }}',
-            isTest: @json($poll->is_test ?? false),
-            testSettings: @json($poll->test_settings ?? $defaultTestSettings)
+            id: <?php echo e($poll->id ?? 'null'); ?>,
+            questions: <?php echo json_encode($poll->questions ? $poll->questions->toArray() : [], 15, 512) ?>,
+            redirectUrl: '<?php echo e(route('polls.index')); ?>',
+            isTest: <?php echo json_encode($poll->is_test ?? false, 15, 512) ?>,
+            testSettings: <?php echo json_encode($poll->test_settings ?? $defaultTestSettings, 15, 512) ?>
         };
     </script>
 
@@ -55,12 +55,12 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <div class="flex items-center gap-3">
-                        <a href="{{ route('polls.index') }}" class="p-2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+                        <a href="<?php echo e(route('polls.index')); ?>" class="p-2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                         </a>
                         <div class="flex items-center gap-2">
                             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $poll->title ?? 'Опрос' }}</h1>
+                            <h1 class="text-lg font-semibold text-gray-900 dark:text-white"><?php echo e($poll->title ?? 'Опрос'); ?></h1>
                             <span x-show="isTest" class="text-[10px] uppercase tracking-wide font-bold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/20 px-2.5 py-0.5 rounded-full">Тест</span>
                             <span x-show="!isTest" class="text-[10px] uppercase tracking-wide font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 px-2.5 py-0.5 rounded-full">Опрос</span>
                         </div>
@@ -87,7 +87,7 @@
                                 <svg x-show="!isDark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                                 <svg x-show="isDark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                             </button>
-                            <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold cursor-pointer">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</div>
+                            <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold cursor-pointer"><?php echo e(substr(Auth::user()->name ?? 'U', 0, 1)); ?></div>
                         </div>
                     </div>
                 </div>
@@ -1122,4 +1122,4 @@
     }
     </script>
 </body>
-</html>
+</html><?php /**PATH C:\OSPanel\survey-app\resources\views/polls/build.blade.php ENDPATH**/ ?>

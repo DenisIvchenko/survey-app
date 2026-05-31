@@ -2,33 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
-   ГЛОБАЛЬНЫЕ НАСТРОЙКИ ТЕМЫ
-   Заставляет все элементы менять цвета одновременно и плавно.
-*/
-@layer base {
-    html {
-        -webkit-transition: color 0.2s ease-in-out,
-                            background-color 0.2s ease-in-out;
-        transition: color 0.2s ease-in-out,
-                    background-color 0.2s ease-in-out;
-    }
+/* Критически важно: скрывает элементы до загрузки Alpine */
+[x-cloak] { display: none !important; }
 
+/* Глобальные плавные переходы для смены темы */
+@layer base {
     *, *::before, *::after {
-        -webkit-transition: color 0.2s ease-in-out,
-                            background-color 0.2s ease-in-out,
-                            border-color 0.2s ease-in-out,
-                            text-decoration-color 0.2s ease-in-out,
-                            fill 0.2s ease-in-out,
-                            stroke 0.2s ease-in-out;
-        transition: color 0.2s ease-in-out,
-                    background-color 0.2s ease-in-out,
-                    border-color 0.2s ease-in-out,
-                    text-decoration-color 0.2s ease-in-out,
-                    fill 0.2s ease-in-out,
-                    stroke 0.2s ease-in-out;
+        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
     }
-    .overflow-hidden {
-    overflow: hidden !important;
+    /* Исключаем интерактивные элементы из глобального перехода */
+    button, a, input, textarea, select, .transition-none {
+        transition-property: background-color, border-color, color, box-shadow;
     }
+}
+
+label.selected div:first-child {
+    @apply border-blue-500 ring-2 ring-blue-500/30;
+}
+label.selected .absolute svg {
+    @apply opacity-100;
 }

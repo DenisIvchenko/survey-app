@@ -1,4 +1,13 @@
-<x-app-layout>
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(App\View\Components\AppLayout::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
     <div x-data="{
         showCreateModal: false,
         showDeleteModal: false,
@@ -33,7 +42,7 @@
     }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
             
-            {{-- Уведомление о копировании ссылки --}}
+            
             <div x-show="copiedPollId" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 -translate-y-4"
@@ -56,30 +65,31 @@
                 </button>
             </div>
 
-            @if(session('success'))
+            <?php if(session('success')): ?>
                 <div class="mb-6 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl text-sm text-green-700 dark:text-green-400">
-                    {{ session('success') }}
+                    <?php echo e(session('success')); ?>
+
                 </div>
-            @endif
+            <?php endif; ?>
 
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Мои опросы</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse($polls as $poll)
+                <?php $__empty_1 = true; $__currentLoopData = $polls; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $poll): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <div class="relative bg-white dark:bg-[#1a1a20] rounded-2xl border border-gray-200 dark:border-white/10 hover:shadow-2xl transition-all duration-300 overflow-visible"
                          x-data="{ panelOpen: false }"
-                         data-poll-id="{{ $poll->id }}">
+                         data-poll-id="<?php echo e($poll->id); ?>">
                         
                         <div class="h-32 bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 rounded-t-2xl relative z-10 overflow-visible">
                             <div x-show="!panelOpen" class="absolute top-3 left-3 transition-all duration-200" :class="panelOpen ? 'opacity-0 -translate-x-4' : 'opacity-100 translate-x-0'">
                                 <span class="px-3 py-1 bg-white/95 dark:bg-black/60 backdrop-blur-sm rounded-lg text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm status-badge">
-                                    @if($poll->is_completed)
+                                    <?php if($poll->is_completed): ?>
                                         Завершён
-                                    @elseif($poll->is_active)
+                                    <?php elseif($poll->is_active): ?>
                                         Активный
-                                    @else
+                                    <?php else: ?>
                                         Черновик
-                                    @endif
+                                    <?php endif; ?>
                                 </span>
                             </div>
                             
@@ -99,9 +109,9 @@
                                  class="absolute z-50 flex items-center justify-between bg-white/95 dark:bg-[#1a1a20]/95 backdrop-blur-md rounded-t-[12px] h-12 px-6 shadow-lg border-b border-gray-200 dark:border-white/10 w-full"
                                  style="top: 0; left: 0; right: 0;" @click.away="panelOpen = false">
                                 
-                                {{-- Кнопка: ОТЧЕТ --}}
+                                
                                 <div class="relative group flex flex-col items-center">
-                                    <a href="{{ route('polls.report', $poll) }}" 
+                                    <a href="<?php echo e(route('polls.report', $poll)); ?>" 
                                        class="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors cursor-pointer">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -110,28 +120,28 @@
                                     <span class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-3 py-1.5 text-[17px] font-semibold bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white rounded-md whitespace-nowrap pointer-events-none z-50 shadow-sm backdrop-blur-sm">Отчет</span>
                                 </div>
 
-                                {{-- Кнопка: СБОР ОТВЕТОВ --}}
+                                
                                 <div class="relative group flex flex-col items-center">
-                                    <button @click="copyPollLink({{ $poll->id }}, '{{ route('polls.take', $poll) }}')"
+                                    <button @click="copyPollLink(<?php echo e($poll->id); ?>, '<?php echo e(route('polls.take', $poll)); ?>')"
                                             class="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-lg transition-colors cursor-pointer">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
                                         </svg>
                                     </button>
                                     <span class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-3 py-1.5 text-[17px] font-semibold bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white rounded-md whitespace-nowrap pointer-events-none z-50 shadow-sm backdrop-blur-sm">
-                                        <span x-text="copiedPollId === {{ $poll->id }} ? 'Скопировано!' : 'Сбор ответов'"></span>
+                                        <span x-text="copiedPollId === <?php echo e($poll->id); ?> ? 'Скопировано!' : 'Сбор ответов'"></span>
                                     </span>
                                 </div>
 
-                                {{-- Кнопка: Редактировать --}}
+                                
                                 <div class="relative group flex flex-col items-center">
-                                    <a href="{{ route('polls.build', $poll) }}" class="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer">
+                                    <a href="<?php echo e(route('polls.build', $poll)); ?>" class="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </a>
                                     <span class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-3 py-1.5 text-[17px] font-semibold bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white rounded-md whitespace-nowrap pointer-events-none z-50 shadow-sm backdrop-blur-sm">Редактировать</span>
                                 </div>
 
-                                                                           {{-- 🔹 Кнопка: СМЕНА СТАТУСА --}}
+                                                                           
                                 <div class="relative group flex flex-col items-center overflow-visible" 
                                      x-data="{ statusMenuOpen: false }"
                                      style="z-index: 60;">
@@ -143,7 +153,7 @@
                                     </button>
                                     <span class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-3 py-1.5 text-[17px] font-semibold bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white rounded-md whitespace-nowrap pointer-events-none z-50 shadow-sm backdrop-blur-sm">Статус</span>
                                     
-                                    {{--  Выпадающее меню (теперь выпадает ВВЕРХ, над иконками) --}}
+                                    
                                     <div x-show="statusMenuOpen" 
                                          x-cloak 
                                          @click.away="statusMenuOpen = false"
@@ -156,41 +166,41 @@
                                          class="absolute right-0 bottom-full mb-4 w-56 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-[9999]"
                                          style="right: -12px;">
                                         
-                                        {{-- Статус: Активный --}}
-                                        <button @click="updatePollStatus({{ $poll->id }}, 'active'); statusMenuOpen = false"
-                                                :class="{{ $poll->is_active && !$poll->is_completed ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5' }}"
+                                        
+                                        <button @click="updatePollStatus(<?php echo e($poll->id); ?>, 'active'); statusMenuOpen = false"
+                                                :class="<?php echo e($poll->is_active && !$poll->is_completed ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'); ?>"
                                                 class="w-full px-4 py-3 text-left text-sm font-medium flex items-center justify-between transition-colors rounded-t-xl">
                                             <span>Активный</span>
-                                            @if($poll->is_active && !$poll->is_completed)
+                                            <?php if($poll->is_active && !$poll->is_completed): ?>
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                            @endif
+                                            <?php endif; ?>
                                         </button>
                                         
-                                        {{-- Статус: Завершён --}}
-                                        <button @click="updatePollStatus({{ $poll->id }}, 'completed'); statusMenuOpen = false"
-                                                :class="{{ $poll->is_completed ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5' }}"
+                                        
+                                        <button @click="updatePollStatus(<?php echo e($poll->id); ?>, 'completed'); statusMenuOpen = false"
+                                                :class="<?php echo e($poll->is_completed ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'); ?>"
                                                 class="w-full px-4 py-3 text-left text-sm font-medium flex items-center justify-between transition-colors border-t border-gray-100 dark:border-white/5">
                                             <span>Завершён</span>
-                                            @if($poll->is_completed)
+                                            <?php if($poll->is_completed): ?>
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                            @endif
+                                            <?php endif; ?>
                                         </button>
                                         
-                                        {{-- Статус: Черновик --}}
-                                        <button @click="updatePollStatus({{ $poll->id }}, 'draft'); statusMenuOpen = false"
-                                                :class="{{ !$poll->is_active && !$poll->is_completed ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5' }}"
+                                        
+                                        <button @click="updatePollStatus(<?php echo e($poll->id); ?>, 'draft'); statusMenuOpen = false"
+                                                :class="<?php echo e(!$poll->is_active && !$poll->is_completed ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'); ?>"
                                                 class="w-full px-4 py-3 text-left text-sm font-medium flex items-center justify-between transition-colors border-t border-gray-100 dark:border-white/5 rounded-b-xl">
                                             <span>Черновик</span>
-                                            @if(!$poll->is_active && !$poll->is_completed)
+                                            <?php if(!$poll->is_active && !$poll->is_completed): ?>
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                            @endif
+                                            <?php endif; ?>
                                         </button>
                                     </div>
                                 </div>
 
-                                {{-- Кнопка: Пройти опрос --}}
+                                
                                 <div class="relative group flex flex-col items-center">
-                                    <a href="{{ route('polls.take', $poll) }}" 
+                                    <a href="<?php echo e(route('polls.take', $poll)); ?>" 
                                     class="p-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors cursor-pointer"
                                     title="Пройти опрос">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +212,7 @@
                                     </span>
                                 </div>
 
-                                {{-- Кнопка: В архив --}}
+                                
                                 <div class="relative group flex flex-col items-center">
                                     <button class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
@@ -210,9 +220,9 @@
                                     <span class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-3 py-1.5 text-[17px] font-semibold bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white rounded-md whitespace-nowrap pointer-events-none z-50 shadow-sm backdrop-blur-sm">В архив</span>
                                 </div>
 
-                                {{-- Кнопка: Удалить --}}
+                                
                                 <div class="relative group flex flex-col items-center">
-                                    <button @click="panelOpen = false; showDeleteModal = true; deletePollId = {{ $poll->id }}; deletePollTitle = '{{ addslashes($poll->title) }}'; lockScroll(true)"
+                                    <button @click="panelOpen = false; showDeleteModal = true; deletePollId = <?php echo e($poll->id); ?>; deletePollTitle = '<?php echo e(addslashes($poll->title)); ?>'; lockScroll(true)"
                                             class="p-2 text-red-500 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
@@ -222,28 +232,29 @@
                         </div>
                         
                         <div class="p-5 bg-white dark:bg-[#1a1a20] relative z-10 rounded-b-2xl">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate">{{ $poll->title }}</h3>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate"><?php echo e($poll->title); ?></h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                                @php
+                                <?php
                                     $qCount = $poll->questions_count ?? 0;
                                     $qLastTwo = $qCount % 100;
                                     $qWord = ($qLastTwo >= 5 && $qLastTwo <= 20) ? 'вопросов' : 
                                             match($qCount % 10) { 1 => 'вопрос', 2 => 'вопроса', 3 => 'вопроса', 4 => 'вопроса', default => 'вопросов' };
-                                @endphp
-                                {{ $qCount }} {{ $qWord }} • {{ $poll->created_at->format('d.m.Y') }}
+                                ?>
+                                <?php echo e($qCount); ?> <?php echo e($qWord); ?> • <?php echo e($poll->created_at->format('d.m.Y')); ?>
+
                             </p>
                             <div class="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 pt-3 border-t border-gray-100 dark:border-white/5">
                                 <span>Без ответов</span>
-                                @php
+                                <?php
                                     $votesCount = $poll->votes_count ?? 0;
-                                @endphp
-                                @if($votesCount > 0)
-                                    <span class="text-green-600 dark:text-green-400 font-medium">{{ $votesCount }} ответов</span>
-                                @endif
+                                ?>
+                                <?php if($votesCount > 0): ?>
+                                    <span class="text-green-600 dark:text-green-400 font-medium"><?php echo e($votesCount); ?> ответов</span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <div class="col-span-full bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-2xl p-12 text-center">
                         <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mx-auto mb-4">
                             <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -251,13 +262,13 @@
                         <p class="text-gray-600 dark:text-gray-400 text-lg mb-4">У вас пока нет созданных опросов.</p>
                         <button @click="showCreateModal = true; lockScroll(true)" class="text-blue-600 dark:text-blue-400 hover:underline text-lg font-medium">Создать первый опрос →</button>
                     </div>
-                @endforelse
+                <?php endif; ?>
             </div>
             
-            <div class="mt-8">{{ $polls->links() }}</div>
+            <div class="mt-8"><?php echo e($polls->links()); ?></div>
         </div>
         
-                {{-- ================= МОДАЛЬНОЕ ОКНО: СОЗДАНИЕ ================= --}}
+                
         <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[99998] overflow-y-auto" @click="showCreateModal = false; lockScroll(false)" style="position: fixed !important;">
             <div class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="flex items-center justify-center min-h-screen px-4 relative z-[99999]">
@@ -266,14 +277,14 @@
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Создать опрос</h3>
                         <p class="text-gray-500 dark:text-gray-400">Введите название, чтобы начать работу</p>
                     </div>
-                    <form action="{{ route('polls.store') }}" method="POST" @click.stop>
-                        @csrf
+                    <form action="<?php echo e(route('polls.store')); ?>" method="POST" @click.stop>
+                        <?php echo csrf_field(); ?>
                         <div class="mb-6">
                             <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Название опроса</label>
                             <input type="text" name="title" id="title" required autofocus placeholder="Например: Опрос удовлетворённости клиентов" class="w-full !bg-gray-50 dark:!bg-[#121216] border border-gray-300 dark:border-white/10 rounded-xl px-5 py-4 text-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500">
                         </div>
                         
-                        {{-- 🔹 Переключатель режима теста --}}
+                        
                         <div class="mb-6 p-4 bg-purple-50 dark:bg-purple-500/10 rounded-xl border border-purple-200 dark:border-purple-500/20">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -281,7 +292,7 @@
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Включите для системы баллов и оценивания</p>
                                 </div>
                                 
-                                {{-- Alpine.js toggle --}}
+                                
                                 <div x-data="{ isTest: false }">
                                     <input type="hidden" name="is_test" :value="isTest ? '1' : '0'">
                                     
@@ -309,7 +320,7 @@
             </div>
         </div>
         
-        {{-- ================= МОДАЛЬНОЕ ОКНО: УДАЛЕНИЕ ================= --}}
+        
         <div x-show="showDeleteModal" x-cloak class="fixed inset-0 z-[99998] flex items-center justify-center" @click="showDeleteModal = false; lockScroll(false)" style="position: fixed !important;">
             <div class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative bg-white dark:bg-[#1a1a20] rounded-2xl shadow-2xl p-8 z-[99999]" style="width: 420px; max-width: 90vw;" @click.stop>
@@ -329,8 +340,8 @@
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
                     <button @click="showDeleteModal = false; lockScroll(false)" class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors">Отмена</button>
                     <form :action="`/polls/${deletePollId}`" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('DELETE'); ?>
                         <button type="submit" class="px-5 py-2.5 text-sm font-semibold bg-red-600 hover:bg-red-500 text-white rounded-xl transition-colors shadow-lg shadow-red-500/30">Удалить опрос</button>
                     </form>
                 </div>
@@ -338,7 +349,7 @@
         </div>
     </div>
 
-    {{-- 🔹 Скрипт для обновления статуса опроса (AJAX) --}}
+    
     <script>
     function updatePollStatus(pollId, status) {
         const card = document.querySelector(`[data-poll-id="${pollId}"]`);
@@ -407,4 +418,14 @@
         }, 2000);
     }
     </script>
-</x-app-layout>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php /**PATH C:\OSPanel\survey-app\resources\views/polls/index.blade.php ENDPATH**/ ?>
