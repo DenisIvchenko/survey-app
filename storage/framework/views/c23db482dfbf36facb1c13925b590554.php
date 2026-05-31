@@ -232,7 +232,17 @@
                         </div>
                         
                         <div class="p-5 bg-white dark:bg-[#1a1a20] relative z-10 rounded-b-2xl">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate"><?php echo e($poll->title); ?></h3>
+                            <div class="flex items-start justify-between gap-2 mb-2">
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white truncate flex-1 min-w-0"><?php echo e($poll->title); ?></h3>
+                                <?php if($poll->surveyRating && (float) $poll->surveyRating->avg_rating > 0): ?>
+                                    <a href="<?php echo e(route('polls.reviews', $poll)); ?>"
+                                       class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800 transition-colors shrink-0"
+                                       title="Смотреть отзывы">
+                                        ★ <?php echo e(number_format((float) $poll->surveyRating->avg_rating, 1)); ?>
+
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
                                 <?php
                                     $qCount = $poll->questions_count ?? 0;

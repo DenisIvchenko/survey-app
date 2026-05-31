@@ -1,0 +1,54 @@
+<?php $attributes ??= new \Illuminate\View\ComponentAttributeBag; ?>
+<?php foreach($attributes->onlyProps([
+    'rating' => 0,
+    'size' => 'md',
+]) as $__key => $__value) {
+    $$__key = $$__key ?? $__value;
+} ?>
+<?php $attributes = $attributes->exceptProps([
+    'rating' => 0,
+    'size' => 'md',
+]); ?>
+<?php foreach (array_filter(([
+    'rating' => 0,
+    'size' => 'md',
+]), 'is_string', ARRAY_FILTER_USE_KEY) as $__key => $__value) {
+    $$__key = $$__key ?? $__value;
+} ?>
+<?php $__defined_vars = get_defined_vars(); ?>
+<?php foreach ($attributes as $__key => $__value) {
+    if (array_key_exists($__key, $__defined_vars)) unset($$__key);
+} ?>
+<?php unset($__defined_vars); ?>
+
+<?php
+    $sizeClasses = [
+        'sm' => 'w-4 h-4',
+        'md' => 'w-5 h-5',
+        'lg' => 'w-6 h-6',
+    ];
+    $starClass = $sizeClasses[$size] ?? $sizeClasses['md'];
+    $rating = max(0, min(5, (float) $rating));
+?>
+
+<div <?php echo e($attributes->merge(['class' => 'inline-flex items-center gap-0.5'])); ?>
+
+     role="img"
+     aria-label="<?php echo e(number_format($rating, 1)); ?> из 5">
+    <?php for($star = 1; $star <= 5; $star++): ?>
+        <?php
+            $fillPercent = min(100, max(0, ($rating - ($star - 1)) * 100));
+        ?>
+        <span class="relative inline-block <?php echo e($starClass); ?> shrink-0">
+            <svg class="<?php echo e($starClass); ?> text-gray-300 dark:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            <span class="absolute inset-0 overflow-hidden" style="width: <?php echo e($fillPercent); ?>%;">
+                <svg class="<?php echo e($starClass); ?> text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+            </span>
+        </span>
+    <?php endfor; ?>
+</div>
+<?php /**PATH C:\OSPanel\survey-app\resources\views/components/rating-display.blade.php ENDPATH**/ ?>
