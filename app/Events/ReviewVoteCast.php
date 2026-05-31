@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Events;
 
-use App\Models\ReviewVote;
+use App\Models\Review;
+use App\Models\User;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -14,7 +15,9 @@ class ReviewVoteCast
     use SerializesModels;
 
     public function __construct(
-        public readonly ReviewVote $vote,
+        public readonly Review $review,
+        public readonly User $user,
+        public readonly string $voteType,
     ) {
     }
 }

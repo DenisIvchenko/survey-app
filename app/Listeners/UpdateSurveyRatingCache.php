@@ -18,9 +18,14 @@ class UpdateSurveyRatingCache
             return;
         }
 
-        DB::transaction(function () use ($review): void {
+        self::recalculate($review->survey_id);
+    }
+
+    public static function recalculate(int $surveyId): void
+    {
+        DB::transaction(function () use ($surveyId): void {
             $baseQuery = static fn () => DB::table('reviews')
-                ->where('survey_id', $review->survey_id)
+                ->where('survey_id', $surveyId)
                 ->where('status', Review::STATUS_APPROVED)
                 ->whereNull('deleted_at');
 
@@ -28,7 +33,7 @@ class UpdateSurveyRatingCache
             $totalReviews = (int) $baseQuery()->count();
 
             DB::table('survey_ratings')->updateOrInsert(
-                ['survey_id' => $review->survey_id],
+                ['survey_id' => $surveyId],
                 [
                     'avg_rating' => round($avgRating, 2),
                     'total_reviews' => $totalReviews,

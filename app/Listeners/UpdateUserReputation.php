@@ -16,14 +16,13 @@ class UpdateUserReputation
 
     public function handle(ReviewVoteCast $event): void
     {
-        $vote = $event->vote->loadMissing('review');
-        $reviewAuthorId = $vote->review?->user_id;
+        $reviewAuthorId = $event->review->user_id;
 
         if ($reviewAuthorId === null) {
             return;
         }
 
-        $delta = $vote->vote_type === ReviewVote::VOTE_USEFUL
+        $delta = $event->voteType === ReviewVote::VOTE_USEFUL
             ? self::USEFUL_DELTA
             : self::USELESS_DELTA;
 

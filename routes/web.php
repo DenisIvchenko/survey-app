@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PollController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Auth;
 
 // Главная → вход
@@ -17,6 +18,10 @@ Route::get('/dashboard', function () {
 
 // 🔹 Все маршруты, требующие авторизации — ОДНА ГРУППА
 Route::middleware(['auth'])->group(function () {
+    
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/reviews/{review}/vote', [ReviewController::class, 'vote'])->name('reviews.vote');
+    Route::patch('/reviews/{review}/moderate', [ReviewController::class, 'moderate'])->name('reviews.moderate');
     
     // Профиль пользователя
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
