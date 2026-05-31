@@ -43,6 +43,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/polls/{poll}/take', [PollController::class, 'take'])->name('polls.take');
     Route::post('/polls/{poll}/submit', [PollController::class, 'submit'])->name('polls.submit');
     Route::get('/polls/{poll}/thanks', [PollController::class, 'thanks'])->name('polls.thanks');
+    Route::get('/polls/{poll}/reviews', [PollController::class, 'showReviews'])->name('polls.reviews');
+    Route::get('/polls/{poll}/reviews/fragment', [PollController::class, 'reviewsFragment'])->name('polls.reviews.fragment');
     
     // Отчет
     Route::get('/polls/{poll}/report', [PollController::class, 'report'])->name('polls.report');

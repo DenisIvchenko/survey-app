@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Poll extends Model
 {
@@ -36,6 +37,18 @@ class Poll extends Model
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class)->orderBy('sort_order');
+    }
+
+    public function surveyRating(): HasOne
+    {
+        return $this->hasOne(SurveyRating::class, 'survey_id', 'id');
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'survey_id', 'id')
+            ->approved()
+            ->with('user:id,name,reputation');
     }
 
     // 🔹 Вспомогательные методы для статусов (опционально, но удобно)

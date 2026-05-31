@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Poll;
 use App\Models\Question;
+use App\Models\Review;
 use App\Models\Vote;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,9 +15,15 @@ use Illuminate\Support\Facades\DB;
 class PollController extends Controller
 {
     //  Список опросов пользователя
-    public function index()
+    public function index(): View
     {
-        $polls = Auth::user()->polls()->withCount('questions')->latest()->paginate(10);
+        $polls = Auth::user()
+            ->polls()
+            ->with('surveyRating')
+            ->withCount('questions')
+            ->latest()
+            ->paginate(10);
+
         return view('polls.index', compact('polls'));
     }
 
@@ -417,9 +425,35 @@ class PollController extends Controller
     }
 
     //  Страница благодарности
-    public function thanks(Poll $poll)
+    public function thanks(Poll $poll): View
     {
-        return view('polls.thanks', compact('poll'));
+        $poll->load('surveyRating');
+
+        $canReview = ! Review::query()
+            ->where('user_id', Auth::id())
+            ->where('survey_id', $poll->id)
+            ->exists();
+
+        $averageRating = $poll->surveyRating?->avg_rating ?? 0;
+
+        return view('polls.thanks', compact('poll', 'canReview', 'averageRating'));
+    }
+
+    public function showReviews(Poll $poll): View
+    {
+        $poll->load('surveyRating');
+
+        $averageRating = $poll->surveyRating?->avg_rating ?? 0;
+        $reviews = $poll->approvedReviews()->latest()->paginate(15);
+
+        return view('polls.reviews', compact('poll', 'averageRating', 'reviews'));
+    }
+
+    public function reviewsFragment(Poll $poll): View
+    {
+        $reviews = $poll->approvedReviews()->latest()->paginate(15);
+
+        return view('polls.partials.reviews_list', compact('poll', 'reviews'));
     }
 
     /**
