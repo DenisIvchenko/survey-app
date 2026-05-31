@@ -39,7 +39,5 @@
     <div class="w-full max-w-md p-8 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl transition-colors duration-200">
         {{ $slot }}
     </div>
-
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>

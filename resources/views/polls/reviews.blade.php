@@ -59,45 +59,61 @@
             </div>
         @endif
 
-        {{-- Reviews list --}}
-        @include('polls.partials.reviews_list', ['poll' => $poll, 'reviews' => $reviews])
+        {{-- Reviews list (SSR + optional AJAX refresh) --}}
+        <div x-data="reviewsFragmentLoader('{{ route('polls.reviews.fragment', $poll) }}')"
+             class="relative">
+            <div x-show="loading"
+                 x-cloak
+                 class="absolute inset-0 z-10 flex items-center justify-center bg-white/60 dark:bg-[#0b0b0f]/60 backdrop-blur-sm rounded-2xl">
+                <svg class="animate-spin w-8 h-8 text-blue-600"
+                     xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
 
-        {{-- Pagination --}}
-        @if ($reviews->hasPages())
-            <div class="mt-8 flex justify-center">
-                <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center gap-1">
-                    {{-- Previous --}}
-                    @if ($reviews->onFirstPage())
-                        <span class="px-3 py-2 text-sm text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed">←</span>
-                    @else
-                        <a href="{{ $reviews->previousPageUrl() }}"
-                           class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                            ←
-                        </a>
-                    @endif
+            <div id="reviews-list-container">
+                @include('polls.partials.reviews_list', ['poll' => $poll, 'reviews' => $reviews])
+            </div>
 
-                    @foreach ($reviews->getUrlRange(max(1, $reviews->currentPage() - 2), min($reviews->lastPage(), $reviews->currentPage() + 2)) as $page => $url)
-                        @if ($page == $reviews->currentPage())
-                            <span class="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm shadow-blue-500/30"
-                                  aria-current="page">{{ $page }}</span>
+            @if ($reviews->hasPages())
+                <div class="mt-8 flex justify-center" @click="onPaginationClick($event)">
+                    <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center gap-1">
+                        @if ($reviews->onFirstPage())
+                            <span class="px-3 py-2 text-sm text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed">←</span>
                         @else
-                            <a href="{{ $url }}"
+                            <a href="{{ $reviews->previousPageUrl() }}"
                                class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                                {{ $page }}
+                                ←
                             </a>
                         @endif
-                    @endforeach
 
-                    @if ($reviews->hasMorePages())
-                        <a href="{{ $reviews->nextPageUrl() }}"
-                           class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                            →
-                        </a>
-                    @else
-                        <span class="px-3 py-2 text-sm text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed">→</span>
-                    @endif
-                </nav>
-            </div>
-        @endif
+                        @foreach ($reviews->getUrlRange(max(1, $reviews->currentPage() - 2), min($reviews->lastPage(), $reviews->currentPage() + 2)) as $page => $url)
+                            @if ($page == $reviews->currentPage())
+                                <span class="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm shadow-blue-500/30"
+                                      aria-current="page">{{ $page }}</span>
+                            @else
+                                <a href="{{ $url }}"
+                                   class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                    {{ $page }}
+                                </a>
+                            @endif
+                        @endforeach
+
+                        @if ($reviews->hasMorePages())
+                            <a href="{{ $reviews->nextPageUrl() }}"
+                               class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                →
+                            </a>
+                        @else
+                            <span class="px-3 py-2 text-sm text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed">→</span>
+                        @endif
+                    </nav>
+                </div>
+            @endif
+        </div>
     </div>
 </x-app-layout>

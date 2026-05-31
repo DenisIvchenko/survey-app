@@ -84,13 +84,7 @@
 
             <?php if(auth()->guard()->check()): ?>
                 <?php if($canReview): ?>
-                    <div class="border-t border-gray-200 dark:border-white/10 pt-8 mb-8"
-                         x-data="{
-                            rating: <?php echo e((int) old('rating', 0)); ?>,
-                            hover: 0,
-                            comment: <?php echo \Illuminate\Support\Js::from(old('comment', ''))->toHtml() ?>,
-                            maxLength: 1500,
-                         }">
+                    <div class="border-t border-gray-200 dark:border-white/10 pt-8 mb-8">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1 text-center sm:text-left">
                             Оставить отзыв
                         </h2>
@@ -98,10 +92,20 @@
                             Поделитесь впечатлением об опросе — это поможет другим участникам.
                         </p>
 
-                        <form method="POST" action="<?php echo e(route('reviews.store')); ?>" class="space-y-6">
+                        <form method="POST"
+                              action="<?php echo e(route('reviews.store')); ?>"
+                              class="space-y-6"
+                              x-data="{
+                                  rating: <?php echo e((int) old('rating', 0)); ?>,
+                                  hover: 0,
+                                  submitting: false,
+                                  comment: <?php echo \Illuminate\Support\Js::from(old('comment', ''))->toHtml() ?>,
+                                  maxLength: 1500,
+                              }"
+                              @submit.prevent="submitting = true; $el.submit()">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="survey_id" value="<?php echo e($poll->id); ?>">
-                            <input type="hidden" name="rating" :value="rating">
+                            <input type="hidden" name="rating" x-model="rating">
 
                             
                             <div>
@@ -131,12 +135,12 @@
                                     <?php for($star = 1; $star <= 5; $star++): ?>
                                         <button type="button"
                                                 @click="rating = <?php echo e($star); ?>"
-                                                @mouseenter="hover = <?php echo e($star); ?>"
+                                                @mouseover="hover = <?php echo e($star); ?>"
                                                 @mouseleave="hover = 0"
                                                 class="p-1 rounded-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
                                                 aria-label="<?php echo e($star); ?> из 5">
                                             <svg class="w-8 h-8 transition-colors"
-                                                 :class="(hover >= <?php echo e($star); ?> || rating >= <?php echo e($star); ?>) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
+                                                 :class="<?php echo e($star); ?> <= (hover || rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
                                                  viewBox="0 0 20 20"
                                                  fill="currentColor"
                                                  aria-hidden="true">
@@ -228,15 +232,25 @@
                             <div class="flex justify-end">
                                 <?php if (isset($component)) { $__componentOriginald411d1792bd6cc877d687758b753742c = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginald411d1792bd6cc877d687758b753742c = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.primary-button','data' => ['class' => '!bg-blue-600 hover:!bg-blue-500 !normal-case !tracking-normal !text-sm !px-6 !py-3 !rounded-xl shadow-lg shadow-blue-500/30']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.primary-button','data' => ['type' => 'submit','xBind:disabled' => 'submitting','class' => '!bg-blue-600 hover:!bg-blue-500 disabled:!opacity-60 disabled:!cursor-not-allowed !normal-case !tracking-normal !text-sm !px-6 !py-3 !rounded-xl shadow-lg shadow-blue-500/30 inline-flex items-center gap-2']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
 <?php $component->withName('primary-button'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
 <?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['class' => '!bg-blue-600 hover:!bg-blue-500 !normal-case !tracking-normal !text-sm !px-6 !py-3 !rounded-xl shadow-lg shadow-blue-500/30']); ?>
-                                    Отправить отзыв
+<?php $component->withAttributes(['type' => 'submit','x-bind:disabled' => 'submitting','class' => '!bg-blue-600 hover:!bg-blue-500 disabled:!opacity-60 disabled:!cursor-not-allowed !normal-case !tracking-normal !text-sm !px-6 !py-3 !rounded-xl shadow-lg shadow-blue-500/30 inline-flex items-center gap-2']); ?>
+                                    <svg x-show="submitting"
+                                         x-cloak
+                                         class="animate-spin w-4 h-4"
+                                         xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         aria-hidden="true">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="submitting ? 'Отправка…' : 'Отправить отзыв'"></span>
                                  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginald411d1792bd6cc877d687758b753742c)): ?>

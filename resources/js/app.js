@@ -1,5 +1,105 @@
+import './bootstrap';
 import Alpine from 'alpinejs';
+
 window.Alpine = Alpine;
+
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+if (csrfToken && window.axios) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+}
+
+window.getCsrfToken = () => csrfToken ?? '';
+
+window.castReviewVote = async (state, voteUrl, voteType) => {
+    if (state.voting || state.voted) {
+        return;
+    }
+
+    state.voting = true;
+
+    try {
+        const response = await fetch(voteUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': window.getCsrfToken(),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ vote_type: voteType }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Не удалось отправить голос');
+        }
+
+        state.voted = true;
+        window.showToast?.(data.message, 'success');
+        window.dispatchEvent(new CustomEvent('review-voted', { detail: { reviewId: data.review_id, voteType: data.vote_type } }));
+    } catch (error) {
+        window.showToast?.(error.message, 'error');
+    } finally {
+        state.voting = false;
+    }
+};
+
+Alpine.data('reviewsFragmentLoader', (fragmentUrl) => ({
+    loading: false,
+
+    init() {
+        window.addEventListener('review-voted', () => this.load());
+    },
+
+    async load(page = null) {
+        this.loading = true;
+
+        try {
+            const url = new URL(fragmentUrl, window.location.origin);
+            const pageParam = page ?? new URLSearchParams(window.location.search).get('page');
+
+            if (pageParam) {
+                url.searchParams.set('page', pageParam);
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    Accept: 'text/html',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Не удалось загрузить отзывы');
+            }
+
+            const html = await response.text();
+            const container = document.getElementById('reviews-list-container');
+
+            if (container) {
+                container.innerHTML = html;
+            }
+        } catch (error) {
+            window.showToast?.(error.message, 'error');
+        } finally {
+            this.loading = false;
+        }
+    },
+
+    onPaginationClick(event) {
+        const link = event.target.closest('a[href]');
+
+        if (!link) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const page = new URL(link.href, window.location.origin).searchParams.get('page');
+        this.load(page);
+        history.replaceState({}, '', link.href);
+    },
+}));
 
 // 🔒 БЛОК 1: ГЛОБАЛЬНЫЙ КОМПОНЕНТ ТЕМЫ
 Alpine.data('themeSwitcher', () => ({
@@ -519,6 +619,8 @@ function showToast(message, type = 'success') {
         setTimeout(() => toast.remove(), 300);
     }, 2000);
 }
+
+window.showToast = showToast;
 
 // 🔒 ЗАПУСК ALPINE.JS
 Alpine.start();

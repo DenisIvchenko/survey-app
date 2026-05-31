@@ -40,7 +40,5 @@
         <?php echo e($slot); ?>
 
     </div>
-
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html><?php /**PATH C:\OSPanel\survey-app\resources\views/layouts/guest.blade.php ENDPATH**/ ?>
