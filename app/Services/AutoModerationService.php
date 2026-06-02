@@ -4,128 +4,157 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\ModerationLog;
 use App\Models\Review;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Throwable;
 
 class AutoModerationService
 {
-    private const MIN_LENGTH = 15;
-
-    private const MAX_LENGTH = 1500;
-
-    private const SIMILARITY_THRESHOLD = 85.0;
-
-    private const RECENT_REVIEWS_LIMIT = 50;
-
     /**
+     * Проверка отзыва системой автоматической модерации.
+     *
      * @return array{status: 'approved'|'pending'|'rejected', reason: ?string, score: float}
      */
-    public function check(string $comment): array
+    public function check(Review $review): array
     {
-        $normalized = trim($comment);
-        $length = mb_strlen($normalized);
+        $score = 1.0;
+        $reasons = [];
+        $content = $this->getContent($review);
 
-        if ($length < self::MIN_LENGTH) {
-            return [
-                'status' => 'rejected',
-                'reason' => 'Comment is too short (minimum '.self::MIN_LENGTH.' characters).',
-                'score' => 0.0,
-            ];
+        // ─────────────────────────────────────────────────────────────
+        // 1. Проверка длины текста
+        // ─────────────────────────────────────────────────────────────
+        $len = mb_strlen($content);
+        $minLength = config('moderation.min_length', 15);
+        $maxLength = config('moderation.max_length', 1500);
+
+        if ($len < $minLength) {
+            $score -= 0.4;
+            $reasons[] = 'too_short';
+        }
+        if ($len > $maxLength) {
+            $score -= 0.2;
+            $reasons[] = 'too_long';
         }
 
-        if ($length > self::MAX_LENGTH) {
-            return [
-                'status' => 'pending',
-                'reason' => 'Comment exceeds maximum length ('.self::MAX_LENGTH.' characters).',
-                'score' => 0.5,
-            ];
+        // ─────────────────────────────────────────────────────────────
+        // 2. Проверка на стоп-слова
+        // ─────────────────────────────────────────────────────────────
+        $text = mb_strtolower($content);
+        foreach (config('moderation.stop_words', []) as $word) {
+            if (!is_string($word) || $word === '') {
+                continue;
+            }
+            if (Str::contains($text, mb_strtolower($word))) {
+                $score -= 0.6;
+                $reasons[] = 'stop_word:' . $word;
+                break;
+            }
         }
 
-        $stopWord = $this->findStopWord($normalized);
-
-        if ($stopWord !== null) {
-            return [
-                'status' => 'rejected',
-                'reason' => 'Comment contains prohibited word: '.$stopWord,
-                'score' => 0.0,
-            ];
+        // ─────────────────────────────────────────────────────────────
+        // 3. Проверка на наличие ссылок
+        // ─────────────────────────────────────────────────────────────
+        if (preg_match('/https?:\/\/|www\./i', $content)) {
+            $score -= 0.3;
+            $reasons[] = 'contains_link';
         }
 
-        if ($this->isTooSimilarToRecent($normalized)) {
-            return [
-                'status' => 'rejected',
-                'reason' => 'Comment is too similar to an existing review.',
-                'score' => 0.2,
-            ];
+        // ─────────────────────────────────────────────────────────────
+        // 4. Rate limit по IP
+        // ─────────────────────────────────────────────────────────────
+        $clientIp = $review->client_ip ?? request()?->ip();
+        if ($clientIp) {
+            $ipKey = "moderation:ip:{$clientIp}";
+            $maxPerHour = config('moderation.max_reviews_per_ip_per_hour', 10);
+            
+            // Важно: инкремент счётчика должен происходить после успешной отправки!
+            // См. заметку ниже по интеграции.
+            $currentCount = (int) Cache::get($ipKey, 0);
+            if ($currentCount >= $maxPerHour) {
+                $score -= 0.5;
+                $reasons[] = 'ip_rate_exceeded';
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // 5. Проверка на дубликаты (в пределах временного окна)
+        // ─────────────────────────────────────────────────────────────
+        $windowHours = config('moderation.duplicate_window_hours', 24);
+        $duplicateExists = Review::query()
+            ->where(function ($q) use ($content) {
+                $q->where('comment', $content);
+            })
+            ->where('id', '!=', $review->id)
+            ->where('created_at', '>', now()->subHours($windowHours))
+            ->exists();
+
+        if ($duplicateExists) {
+            $score -= 0.5;
+            $reasons[] = 'duplicate';
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // 6. Нормализация финального скоринга и определение статуса
+        // ─────────────────────────────────────────────────────────────
+        $finalScore = max(0.0, min(1.0, $score));
+        $approveThreshold = config('moderation.auto_approve_threshold', 0.8);
+        $rejectThreshold = config('moderation.auto_reject_threshold', 0.4);
+
+        $status = match (true) {
+            $finalScore >= $approveThreshold => 'approved',
+            $finalScore <= $rejectThreshold  => 'rejected',
+            default                           => 'pending',
+        };
+
+        // ─────────────────────────────────────────────────────────────
+        // 7. Логирование в ModerationLog
+        // ─────────────────────────────────────────────────────────────
+        try {
+            ModerationLog::create([
+                'review_id'    => $review->id,
+                'moderator_id' => null,
+                'action'       => 'system_check',
+                'details'      => [
+                    'score'   => round($finalScore, 2),
+                    'reasons' => $reasons,
+                    'status'  => $status,
+                    'meta'    => [
+                        'length' => $len,
+                        'ip'     => $clientIp,
+                    ],
+                ],
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            // Логирование не должно ломать основной поток
+            report($e);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // 8. Формирование ответа в нужном формате
+        // ─────────────────────────────────────────────────────────────
+        $reason = null;
+        if ($status !== 'approved' || !empty($reasons)) {
+            $reason = !empty($reasons) 
+                ? implode(', ', $reasons) 
+                : 'manual_review_required';
         }
 
         return [
-            'status' => 'approved',
-            'reason' => null,
-            'score' => 1.0,
+            'status' => $status,
+            'score'  => round($finalScore, 2),
+            'reason' => $reason,
         ];
     }
 
-    private function findStopWord(string $comment): ?string
+    /**
+     * Универсальное получение текста отзыва (поддержка content/comment).
+     */
+    private function getContent(Review $review): string
     {
-        $lowerComment = mb_strtolower($comment);
-
-        foreach (config('moderation.stop_words', []) as $word) {
-            if (! is_string($word) || $word === '') {
-                continue;
-            }
-
-            if (Str::contains($lowerComment, mb_strtolower($word))) {
-                return $word;
-            }
-        }
-
-        return null;
-    }
-
-    private function isTooSimilarToRecent(string $comment): bool
-    {
-        $recentComments = Review::query()
-            ->whereIn('status', [Review::STATUS_APPROVED, Review::STATUS_PENDING])
-            ->whereNotNull('comment')
-            ->latest('id')
-            ->limit(self::RECENT_REVIEWS_LIMIT)
-            ->pluck('comment');
-
-        foreach ($recentComments as $existingComment) {
-            if (! is_string($existingComment) || $existingComment === '') {
-                continue;
-            }
-
-            if ($this->similarityPercent($comment, $existingComment) >= self::SIMILARITY_THRESHOLD) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function similarityPercent(string $first, string $second): float
-    {
-        $percent = 0.0;
-        similar_text(mb_strtolower($first), mb_strtolower($second), $percent);
-
-        if ($percent >= self::SIMILARITY_THRESHOLD) {
-            return $percent;
-        }
-
-        $maxLength = max(mb_strlen($first), mb_strlen($second));
-
-        if ($maxLength === 0) {
-            return 100.0;
-        }
-
-        if (strlen($first) > 255 || strlen($second) > 255) {
-            return $percent;
-        }
-
-        $distance = levenshtein($first, $second);
-
-        return (1 - ($distance / $maxLength)) * 100;
+        return trim($review->content ?? $review->comment ?? '');
     }
 }

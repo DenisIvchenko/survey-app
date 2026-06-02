@@ -8,17 +8,30 @@
         <article class="bg-white dark:bg-[#1a1a20] rounded-2xl border border-gray-200 dark:border-white/10 p-5 sm:p-6 shadow-sm">
             <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
                 <div class="flex flex-wrap items-center gap-2 min-w-0">
-                    <span class="font-semibold text-gray-900 dark:text-white truncate">
-                        <?php echo e($review->user?->name ?? 'Аноним'); ?>
-
-                    </span>
-                    <?php if($review->user): ?>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300"
-                              title="Репутация">
-                            ★ <?php echo e(number_format((int) $review->user->reputation)); ?>
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-lg flex-shrink-0 overflow-hidden border-2 border-white dark:border-[#1a1a20]">
+                        <?php if($review->user->profile_photo_path): ?>
+                            <img src="<?php echo e(asset('storage/' . $review->user->profile_photo_path)); ?>"
+                                class="w-full h-full object-cover"
+                                alt="<?php echo e($review->user->name); ?>">
+                        <?php else: ?>
+                        <?php
+                        $colors = ['from-purple-500 to-pink-500', 'from-blue-500 to-cyan-500', 'from-green-500 to-emerald-500', 'from-orange-500 to-red-500', 'from-indigo-500 to-purple-500'];
+                        $gradient = $colors[abs(crc32($review->user->name)) % count($colors)];
+                        ?>
+                        <span class="text-white bg-gradient-to-br <?php echo e($gradient); ?> w-full h-full flex items-center justify-center">
+                            <?php echo e(strtoupper(substr($review->user->name, 0, 1))); ?>
 
                         </span>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate max-w-[100px]">
+                        <?php echo e($review->user->name); ?>
+
+                    </span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300">
+                        🎖️ <?php echo e(number_format((int) $review->user->reputation)); ?>
+
+                    </span>
                 </div>
                 <time class="text-xs text-gray-500 dark:text-gray-400 shrink-0"
                       datetime="<?php echo e($review->created_at->toIso8601String()); ?>">

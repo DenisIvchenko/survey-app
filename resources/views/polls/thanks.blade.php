@@ -145,10 +145,6 @@
             @endauth
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 border-t border-gray-200 dark:border-white/10">
-                <a href="{{ route('polls.reviews', $poll) }}"
-                   class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
-                    Смотреть все отзывы об опросе →
-                </a>
                 <a href="{{ route('dashboard') }}"
                    class="inline-block px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-semibold transition-all shadow-lg shadow-blue-500/25 text-center">
                     Вернуться на главную

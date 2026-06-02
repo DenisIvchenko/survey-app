@@ -12,16 +12,10 @@
 
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="min-w-0 flex-1">
-                    @if ($poll->user_id === auth()->id())
-                        <a href="{{ route('polls.show', $poll) }}"
-                           class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors break-words">
-                            {{ $poll->title }}
-                        </a>
-                    @else
-                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
-                            {{ $poll->title }}
-                        </h1>
-                    @endif
+                    <a href="{{ route('polls.take', $poll) }}"
+                        class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors break-words">
+                        {{ $poll->title }}
+                    </a>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         Отзывы участников
                         @if ($poll->surveyRating?->total_reviews)

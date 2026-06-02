@@ -11,7 +11,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($polls as $poll)
                 {{-- 🔹 ВСЯ КАРТОЧКА — КЛИКАБЕЛЬНАЯ ССЫЛКА --}}
-                <a href="{{ route('polls.take', $poll) }}" 
+                <a href="{{ route('polls.reviews', $poll) }}" 
                    class="block relative bg-white dark:bg-[#1a1a20] rounded-2xl border border-gray-200 dark:border-white/10 hover:shadow-2xl transition-all duration-300 overflow-hidden group">
                     
                     {{-- Зелёная шапка --}}
@@ -51,6 +51,16 @@
                     
                     {{-- Тело карточки --}}
                     <div class="p-5 bg-white dark:bg-[#1a1a20] relative z-10 rounded-b-2xl">
+
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            @if ($poll->surveyRating && (float) $poll->surveyRating->avg_rating > 0)
+                                <div class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800 transition-colors shrink-0"
+                                    title="Смотреть отзывы">
+                                    ★ {{ number_format((float) $poll->surveyRating->avg_rating, 1) }}
+                                </div>
+                            @endif
+                        </div>
+                        
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {{ $poll->title }}
                         </h3>

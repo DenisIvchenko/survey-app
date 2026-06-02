@@ -21,18 +21,11 @@
 
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="min-w-0 flex-1">
-                    <?php if($poll->user_id === auth()->id()): ?>
-                        <a href="<?php echo e(route('polls.show', $poll)); ?>"
-                           class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors break-words">
-                            <?php echo e($poll->title); ?>
+                    <a href="<?php echo e(route('polls.take', $poll)); ?>"
+                        class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors break-words">
+                        <?php echo e($poll->title); ?>
 
-                        </a>
-                    <?php else: ?>
-                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
-                            <?php echo e($poll->title); ?>
-
-                        </h1>
-                    <?php endif; ?>
+                    </a>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         Отзывы участников
                         <?php if($poll->surveyRating?->total_reviews): ?>
